@@ -1,7 +1,8 @@
 import React from 'react';
+import { Title } from './styles';
 
 const CustomerDetails: React.FC = () => {
-  return <h1>CustomerDetails</h1>;
+  return <Title>CustomerDetails</Title>;
 };
 
 export default CustomerDetails;
