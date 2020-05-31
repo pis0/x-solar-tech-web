@@ -1,13 +1,15 @@
-import styled from 'styled-components';
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import styled, { css } from 'styled-components';
 import { shade } from 'polished';
 import { MdSearch } from 'react-icons/md';
+import IForm from './iform';
 
 export const Title = styled.h1`
   font-size: 36px;
   color: #aaa;
 `;
 
-export const Form = styled.form`
+export const Form = styled.form<IForm>`
   margin-top: 40px;
   max-width: 600px;
 
@@ -25,6 +27,18 @@ export const Form = styled.form`
     &::placeholder {
       color: #ccc;
     }
+
+    ${(props) => {
+      const errorColor = '#de0000';
+      if (props.hasError)
+        return css`
+          color: ${errorColor};
+          &::placeholder {
+            color: ${errorColor};
+          }
+        `;
+      return null;
+    }}
   }
 `;
 
@@ -70,4 +84,9 @@ export const Clients = styled.div`
     color: #ddd;
     margin-top: 4px;
   }
+`;
+
+export const NoResults = styled.span`
+  font-size: 26px;
+  color: #aaa;
 `;
