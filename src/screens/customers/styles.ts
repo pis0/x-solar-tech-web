@@ -33,9 +33,6 @@ export const Form = styled.form<IForm>`
       if (props.hasError)
         return css`
           color: ${errorColor};
-          &::placeholder {
-            color: ${errorColor};
-          }
         `;
       return null;
     }}

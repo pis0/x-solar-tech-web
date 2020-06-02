@@ -1,4 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
+import { Link } from 'react-router-dom';
 import RemoteServices from '../../domain/services/remote/remote.services';
 import { Title, Form, Clients, FormIcon, NoResults } from './styles';
 import ICustomer from './icustomer';
@@ -7,7 +8,9 @@ let inputOnChangeDelay: number;
 
 const Customers: React.FC = () => {
   const [resultError, setResultError] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(
+    localStorage.getItem('xsolartechweb:inputValue') ?? '',
+  );
   const [clients, setClients] = useState<ICustomer[]>([]);
 
   const clientListCompare = (a: ICustomer, b: ICustomer) => {
@@ -38,27 +41,22 @@ const Customers: React.FC = () => {
   const getClientsFromApi = async (value: string | null) => {
     console.log('Customers', 'getClientsFromApi');
 
-    try {
-      await RemoteServices.get<ICustomer[]>('/customer/').then(
-        (response) => {
-          const customers = response.data;
-          if (response.status === 200) {
-            setClients(resolveClients(customers, value ?? ''));
-          } else {
-            const errorMessage = `error: inexpected status ${response.status}`;
-            console.log('Customers', errorMessage);
-            setResultError(errorMessage);
-          }
-        },
-        (error) => {
-          console.log('Customers', 'error:', error);
-          setResultError(error.toString());
-        },
-      );
-    } catch (error) {
-      console.log('Customers', 'error:', error);
-      setResultError(error.toString());
-    }
+    await RemoteServices.get('/customer/').then(
+      (response) => {
+        const customers = response.data;
+        if (response.status === 200) {
+          setClients(resolveClients(customers, value ?? ''));
+        } else {
+          const errorMessage = `error: inexpected status ${response.status}`;
+          console.log('Customers', errorMessage);
+          setResultError(errorMessage);
+        }
+      },
+      (error) => {
+        console.log('Customers', 'api error:', error);
+        setResultError(error.toString());
+      },
+    );
   };
 
   const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -71,11 +69,16 @@ const Customers: React.FC = () => {
     }, 300);
   };
 
+  useEffect(() => {
+    console.log('Customers', 'clients was updated');
+    localStorage.setItem('xsolartechweb:inputValue', inputValue);
+  }, [inputValue]);
+
   // mount
   useEffect(() => {
     console.log('Customers', 'awake');
     const init = async () => {
-      await getClientsFromApi(null);
+      await getClientsFromApi(inputValue);
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,10 +105,10 @@ const Customers: React.FC = () => {
 
       <Clients>
         {clients?.map((client) => (
-          <a key={client.id} href="/customers/details">
+          <Link key={client.id} to={`/customers/details/${client.id}`}>
             <strong>{client.name}</strong>
             <span>{client.cpf}</span>
-          </a>
+          </Link>
         ))}
       </Clients>
       {resultError !== null && <NoResults>{resultError}</NoResults>}
