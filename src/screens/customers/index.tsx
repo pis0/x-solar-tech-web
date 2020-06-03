@@ -2,7 +2,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import RemoteServices from '../../domain/services/remote/remote.services';
 import { Title, Form, Clients, FormIcon, NoResults } from './styles';
-import ICustomer from './icustomer';
+import ICustomer from '../../domain/interfaces/icustomer';
 
 let inputOnChangeDelay: number;
 
@@ -41,7 +41,7 @@ const Customers: React.FC = () => {
   const getClientsFromApi = async (value: string | null) => {
     console.log('Customers', 'getClientsFromApi');
 
-    await RemoteServices.get('/customer/').then(
+    await RemoteServices.get<ICustomer[]>('/customer/').then(
       (response) => {
         const customers = response.data;
         if (response.status === 200) {
