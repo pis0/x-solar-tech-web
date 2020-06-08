@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ChangeEvent, useCallback } from 'react';
 import { useRouteMatch } from 'react-router-dom';
+import { FaEdit } from 'react-icons/fa';
 import {
   Title,
   CustomerDetailsContainer,
@@ -11,12 +12,21 @@ import {
 import IRouteParams from './irouteparams';
 import RemoteServices from '../../domain/services/remote/remote.services';
 import ICustomer from '../../domain/interfaces/icustomer';
-import IAddress from './iddress';
+import IAddress from './iaddress';
+import IAddressType from './iaddress.type';
 
 const CustomerDetails: React.FC = () => {
   const { params } = useRouteMatch<IRouteParams>();
   const [customerData, setCustomerData] = useState<ICustomer>();
   const [addressData, setAddressData] = useState<IAddress[]>();
+  const [addressType, setAddressType] = useState<IAddressType[]>();
+  const [inputValue, setInputValue] = useState<string>();
+  const [inputEditorMode, setInputEditorMode] = useState<boolean>(false);
+  const [
+    formSubmitButtonRef,
+    setFormSubmitButtonRef,
+  ] = useState<HTMLButtonElement | null>();
+
   const resolveCustomerDataById = async (
     id: string,
   ): Promise<ICustomer | undefined> => {
@@ -55,20 +65,62 @@ const CustomerDetails: React.FC = () => {
     return undefined;
   };
 
+  const getAddressTypes = async (): Promise<IAddressType[] | undefined> => {
+    try {
+      const response = await RemoteServices.get<IAddressType[]>(
+        '/address/types',
+      );
+      if (response.status === 200) {
+        const addressTypes = response.data;
+        return addressTypes;
+      }
+      const errorMessage = `error: inexpected status ${response.status}`;
+      console.log('CustomerDetails', errorMessage);
+    } catch (error) {
+      console.log('CustomerDetails', 'api error:', error);
+    }
+    return undefined;
+  };
+
   useEffect(() => {
     console.log('CustomerDetails', 'params updated');
+
     const init = async () => {
       const customerDataResult = await resolveCustomerDataById(params?.id);
       setCustomerData(customerDataResult);
+
+      const getAddressTypesResult = await getAddressTypes();
+      setAddressType(getAddressTypesResult);
 
       const addressDataResult = await resolveAddressByCustomerId(
         customerDataResult?.id,
       );
       setAddressData(addressDataResult);
     };
-
     init();
   }, [params]);
+
+  const addressListCompare = (a: IAddress, b: IAddress) => {
+    if (a.priority < b.priority) return -1;
+    if (a.priority > b.priority) return 1;
+    return 0;
+  };
+
+  const inputOnChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const result = e?.target?.value;
+    if (escape(result)?.match(/%0A/) && formSubmitButtonRef) {
+      formSubmitButtonRef.click();
+      return;
+    }
+    setInputValue(result ?? '');
+  };
+
+  const resolveCols = useCallback(() => {
+    const MAX_COLS = 30;
+    let result = inputValue?.length ?? customerData?.name?.length ?? 0;
+    if (result > MAX_COLS) result = MAX_COLS;
+    return result;
+  }, [inputValue, customerData]);
 
   // mount
   useEffect(() => {
@@ -84,8 +136,56 @@ const CustomerDetails: React.FC = () => {
 
   return (
     <>
-      <Title>{customerData?.name}</Title>
-      <SubTitle>{`(${customerData?.cpf})`}</SubTitle>
+      {/* <Title>{customerData?.name}</Title> */}
+      <Title
+        editorMode={!!inputEditorMode}
+        onSubmit={(e) => {
+          e.preventDefault();
+          setInputEditorMode(false);
+          if (customerData && inputValue?.length) {
+            const newCustomerData: ICustomer = { ...customerData };
+            newCustomerData.name = inputValue.trimEnd();
+            setInputValue(newCustomerData.name);
+            setCustomerData(newCustomerData);
+          } else {
+            setInputValue(customerData?.name);
+          }
+        }}
+      >
+        <textarea
+          style={{ background: inputEditorMode ? '#fff' : 'transparent' }}
+          rows={1}
+          cols={resolveCols()}
+          maxLength={30}
+          readOnly={!inputEditorMode}
+          spellCheck={false}
+          placeholder={customerData?.name}
+          value={inputValue ?? customerData?.name}
+          onChange={inputOnChange}
+          onClick={() => {
+            console.log('onClick');
+            setInputEditorMode(true);
+          }}
+        />
+        <FaEdit size={22} />
+        {inputEditorMode && (
+          <>
+            <button ref={(ref) => setFormSubmitButtonRef(ref)} type="submit">
+              SAVE
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setInputValue(customerData?.name);
+                setInputEditorMode(false);
+              }}
+            >
+              UNDO
+            </button>
+          </>
+        )}
+      </Title>
+      <SubTitle>{customerData?.cpf}</SubTitle>
       <CustomerDetailsContainer>
         <section>
           <BoxInfo>
@@ -98,15 +198,15 @@ const CustomerDetails: React.FC = () => {
           </BoxInfo>
         </section>
 
-        <AddressTitle>Endereços</AddressTitle>
-        {addressData?.map((item) => (
+        <AddressTitle>Addresses</AddressTitle>
+        {addressData?.sort(addressListCompare)?.map((item) => (
           <AddressComp key={item?.id} priority={item?.priority}>
             <section className="row">
               <BoxInfo>
                 <span>street</span>
                 <strong>{item?.street?.toUpperCase()}</strong>
               </BoxInfo>
-              <BoxInfo id="small">
+              <BoxInfo className="small">
                 <span>number</span>
                 <strong>{item?.number}</strong>
               </BoxInfo>
@@ -116,9 +216,11 @@ const CustomerDetails: React.FC = () => {
                 <span>details</span>
                 <strong>{(item?.details ?? ' ')?.toUpperCase()}</strong>
               </BoxInfo>
-              <BoxInfo id="small">
+              <BoxInfo className="small">
                 <span>type</span>
-                <strong>2</strong>
+                <strong>
+                  {addressType?.find((t) => t?.id === item?.type)?.label ?? ''}
+                </strong>
               </BoxInfo>
             </section>
             <section className="row">

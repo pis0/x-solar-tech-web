@@ -1,10 +1,66 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import styled, { css } from 'styled-components';
-import IAddressComp from './iAddressComp';
+import { lighten } from 'polished';
+import IAddressComp from './iaddress.comp';
+import IForm from './iform';
+// export const Title = styled.h1`
+//   font-size: 36px;
+//   color: #aaa;
+// `;
 
-export const Title = styled.h1`
-  font-size: 36px;
-  color: #aaa;
+export const Title = styled.form<IForm>`
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+
+  textarea {
+    display: flex;
+    padding: 0;
+    border: 0;
+    color: #aaa;
+    font-size: 36px;
+    resize: unset;
+    text-size-adjust: auto;
+    white-space: nowrap;
+    overflow-wrap: inherit;
+    overflow: hidden;
+
+    &::placeholder {
+      color: #ccc;
+    }
+  }
+
+  button {
+    display: flex;
+    height: 100%;
+    border: none;
+    padding: 8px;
+    margin-left: 2px;
+    border-radius: 4px;
+    color: #eee;
+  }
+  button[type='submit'] {
+    background: #60a873;
+    &:hover {
+      background: ${lighten(0.1, '#60a873')};
+    }
+  }
+  button[type='button'] {
+    background: #d17373;
+    &:hover {
+      background: ${lighten(0.1, '#d17373')};
+    }
+  }
+
+  svg {
+    visibility: hidden;
+    opacity: 0.2;
+  }
+  &:hover {
+    svg {
+      visibility: ${(props) => (props.editorMode ? 'hidden' : 'visible')};
+    }
+  }
 `;
 
 export const SubTitle = styled.h2`
@@ -23,7 +79,7 @@ export const AddressComp = styled.address<IAddressComp>`
   ${(props) => {
     if (props.priority !== 1)
       return css`
-        opacity: 0.6;
+        opacity: 0.7;
       `;
     return null;
   }}
@@ -58,7 +114,7 @@ export const CustomerDetailsContainer = styled.div`
       }
     }
 
-    div#small {
+    .small {
       max-width: 150px;
     }
   }
