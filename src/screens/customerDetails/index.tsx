@@ -1,12 +1,9 @@
-import React, { useEffect, useState, ChangeEvent, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
-import { FaEdit } from 'react-icons/fa';
 import {
-  Title,
   CustomerDetailsContainer,
   BoxInfo,
   AddressTitle,
-  SubTitle,
   AddressComp,
 } from './styles';
 import IRouteParams from './irouteparams';
@@ -14,18 +11,13 @@ import RemoteServices from '../../domain/services/remote/remote.services';
 import ICustomer from '../../domain/interfaces/icustomer';
 import IAddress from './iaddress';
 import IAddressType from './iaddress.type';
+import TextArea from './text.area';
 
 const CustomerDetails: React.FC = () => {
   const { params } = useRouteMatch<IRouteParams>();
   const [customerData, setCustomerData] = useState<ICustomer>();
   const [addressData, setAddressData] = useState<IAddress[]>();
   const [addressType, setAddressType] = useState<IAddressType[]>();
-  const [inputValue, setInputValue] = useState<string>();
-  const [inputEditorMode, setInputEditorMode] = useState<boolean>(false);
-  const [
-    formSubmitButtonRef,
-    setFormSubmitButtonRef,
-  ] = useState<HTMLButtonElement | null>();
 
   const resolveCustomerDataById = async (
     id: string,
@@ -106,22 +98,6 @@ const CustomerDetails: React.FC = () => {
     return 0;
   };
 
-  const inputOnChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const result = e?.target?.value;
-    if (escape(result)?.match(/%0A/) && formSubmitButtonRef) {
-      formSubmitButtonRef.click();
-      return;
-    }
-    setInputValue(result ?? '');
-  };
-
-  const resolveCols = useCallback(() => {
-    const MAX_COLS = 30;
-    let result = inputValue?.length ?? customerData?.name?.length ?? 0;
-    if (result > MAX_COLS) result = MAX_COLS;
-    return result;
-  }, [inputValue, customerData]);
-
   // mount
   useEffect(() => {
     console.log('CustomerDetails', 'awake');
@@ -136,65 +112,38 @@ const CustomerDetails: React.FC = () => {
 
   return (
     <>
-      {/* <Title>{customerData?.name}</Title> */}
-      <Title
-        editorMode={!!inputEditorMode}
-        onSubmit={(e) => {
-          e.preventDefault();
-          setInputEditorMode(false);
-          if (customerData && inputValue?.length) {
-            const newCustomerData: ICustomer = { ...customerData };
-            newCustomerData.name = inputValue.trimEnd();
-            setInputValue(newCustomerData.name);
-            setCustomerData(newCustomerData);
-          } else {
-            setInputValue(customerData?.name);
-          }
-        }}
-      >
-        <textarea
-          style={{ background: inputEditorMode ? '#fff' : 'transparent' }}
-          rows={1}
-          cols={resolveCols()}
-          maxLength={30}
-          readOnly={!inputEditorMode}
-          spellCheck={false}
-          placeholder={customerData?.name}
-          value={inputValue ?? customerData?.name}
-          onChange={inputOnChange}
-          onClick={() => {
-            console.log('onClick');
-            setInputEditorMode(true);
-          }}
-        />
-        <FaEdit size={22} />
-        {inputEditorMode && (
-          <>
-            <button ref={(ref) => setFormSubmitButtonRef(ref)} type="submit">
-              SAVE
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setInputValue(customerData?.name);
-                setInputEditorMode(false);
-              }}
-            >
-              UNDO
-            </button>
-          </>
-        )}
-      </Title>
-      <SubTitle>{customerData?.cpf}</SubTitle>
+      <TextArea
+        data={customerData}
+        setData={setCustomerData}
+        dataPropName="name"
+      />
+      <TextArea
+        data={customerData}
+        setData={setCustomerData}
+        dataPropName="cpf"
+        styles={{ fontSize: 24, color: '#ccc' }}
+      />
       <CustomerDetailsContainer>
         <section>
           <BoxInfo>
             <span>email</span>
-            <a href="mailto:msdraco@gmail.com">MSDRACO@GMAIL.COM</a>
+            {/* <a href="mailto:msdraco@gmail.com">MSDRACO@GMAIL.COM</a> */}
+            <TextArea
+              data={customerData}
+              setData={setCustomerData}
+              dataPropName="email"
+              styles={{ fontSize: 18, color: 'inherit' }}
+            />
           </BoxInfo>
           <BoxInfo>
             <span>phone</span>
-            <a href="tel:+5511991195222">+55 (11) 99119-5222</a>
+            {/* <a href="tel:+5511991195222">+55 (11) 99119-5222</a> */}
+            <TextArea
+              data={customerData}
+              setData={setCustomerData}
+              dataPropName="phone"
+              styles={{ fontSize: 18, color: 'inherit' }}
+            />
           </BoxInfo>
         </section>
 

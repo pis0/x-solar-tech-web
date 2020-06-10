@@ -3,13 +3,9 @@ import styled, { css } from 'styled-components';
 import { lighten } from 'polished';
 import IAddressComp from './iaddress.comp';
 import IForm from './iform';
-// export const Title = styled.h1`
-//   font-size: 36px;
-//   color: #aaa;
-// `;
 
-export const Title = styled.form<IForm>`
-  display: inline-flex;
+export const Form = styled.form<IForm>`
+  display: flex;
   flex-direction: row;
   align-items: center;
 
@@ -24,10 +20,24 @@ export const Title = styled.form<IForm>`
     white-space: nowrap;
     overflow-wrap: inherit;
     overflow: hidden;
+    width: 100%;
+    max-width: 600px;
 
     &::placeholder {
       color: #ccc;
     }
+
+    ${(props) =>
+      props?.styles?.color &&
+      css`
+        color: ${props?.styles?.color};
+      `};
+
+    ${(props) =>
+      props?.styles?.fontSize &&
+      css`
+        font-size: ${`${props?.styles?.fontSize}px`};
+      `};
   }
 
   button {
@@ -60,12 +70,15 @@ export const Title = styled.form<IForm>`
     svg {
       visibility: ${(props) => (props.editorMode ? 'hidden' : 'visible')};
     }
-  }
-`;
 
-export const SubTitle = styled.h2`
-  font-size: 24px;
-  color: #ccc;
+    ${(props) =>
+      !props.editorMode &&
+      css`
+        textarea {
+          color: #00aaf2;
+        }
+      `};
+  }
 `;
 
 export const AddressTitle = styled.h3`
