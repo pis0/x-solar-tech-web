@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import {
@@ -6,12 +7,14 @@ import {
   AddressTitle,
   AddressComp,
 } from './styles';
-import IRouteParams from './irouteparams';
+import IRouteParams from './interfaces/irouteparams';
 import RemoteServices from '../../domain/services/remote/remote.services';
 import ICustomer from '../../domain/interfaces/icustomer';
-import IAddress from './iaddress';
-import IAddressType from './iaddress.type';
+import IAddress from './interfaces/iaddress';
+import IAddressType from './interfaces/iaddress.type';
 import TextArea from './text.area';
+import Select from './select';
+import Radio from './radio';
 
 const CustomerDetails: React.FC = () => {
   const { params } = useRouteMatch<IRouteParams>();
@@ -92,12 +95,6 @@ const CustomerDetails: React.FC = () => {
     init();
   }, [params]);
 
-  const addressListCompare = (a: IAddress, b: IAddress) => {
-    if (a.priority < b.priority) return -1;
-    if (a.priority > b.priority) return 1;
-    return 0;
-  };
-
   // mount
   useEffect(() => {
     console.log('CustomerDetails', 'awake');
@@ -127,7 +124,6 @@ const CustomerDetails: React.FC = () => {
         <section>
           <BoxInfo>
             <span>email</span>
-            {/* <a href="mailto:msdraco@gmail.com">MSDRACO@GMAIL.COM</a> */}
             <TextArea
               data={customerData}
               setData={setCustomerData}
@@ -137,7 +133,6 @@ const CustomerDetails: React.FC = () => {
           </BoxInfo>
           <BoxInfo>
             <span>phone</span>
-            {/* <a href="tel:+5511991195222">+55 (11) 99119-5222</a> */}
             <TextArea
               data={customerData}
               setData={setCustomerData}
@@ -148,48 +143,101 @@ const CustomerDetails: React.FC = () => {
         </section>
 
         <AddressTitle>Addresses</AddressTitle>
-        {addressData?.sort(addressListCompare)?.map((item) => (
+        {addressData?.map((item) => (
           <AddressComp key={item?.id} priority={item?.priority}>
+            <Radio data={addressData} setData={setAddressData} item={item} />
             <section className="row">
               <BoxInfo>
                 <span>street</span>
-                <strong>{item?.street?.toUpperCase()}</strong>
+                <TextArea
+                  data={addressData}
+                  dataItem={item}
+                  setData={setAddressData}
+                  dataPropName="street"
+                  styles={{ fontSize: 14, color: '#333' }}
+                  upperCase
+                />
               </BoxInfo>
               <BoxInfo className="small">
                 <span>number</span>
-                <strong>{item?.number}</strong>
+                <TextArea
+                  data={addressData}
+                  dataItem={item}
+                  setData={setAddressData}
+                  dataPropName="number"
+                  styles={{ fontSize: 14, color: '#333' }}
+                  upperCase
+                />
               </BoxInfo>
             </section>
             <section className="row">
               <BoxInfo>
                 <span>details</span>
-                <strong>{(item?.details ?? ' ')?.toUpperCase()}</strong>
+                <TextArea
+                  data={addressData}
+                  dataItem={item}
+                  setData={setAddressData}
+                  dataPropName="details"
+                  styles={{ fontSize: 14, color: '#333' }}
+                  upperCase
+                />
               </BoxInfo>
-              <BoxInfo className="small">
+              <BoxInfo className="small" id="type">
                 <span>type</span>
-                <strong>
-                  {addressType?.find((t) => t?.id === item?.type)?.label ?? ''}
-                </strong>
+                <Select
+                  data={addressData}
+                  setData={setAddressData}
+                  types={addressType}
+                  item={item}
+                />
               </BoxInfo>
             </section>
             <section className="row">
               <BoxInfo>
                 <span>city</span>
-                <strong>{item?.city?.toUpperCase()}</strong>
+                <TextArea
+                  data={addressData}
+                  dataItem={item}
+                  setData={setAddressData}
+                  dataPropName="city"
+                  styles={{ fontSize: 14, color: '#333' }}
+                  upperCase
+                />
               </BoxInfo>
               <BoxInfo>
                 <span>state</span>
-                <strong>{item?.state?.toUpperCase()}</strong>
+                <TextArea
+                  data={addressData}
+                  dataItem={item}
+                  setData={setAddressData}
+                  dataPropName="state"
+                  styles={{ fontSize: 14, color: '#333' }}
+                  upperCase
+                />
               </BoxInfo>
             </section>
             <section className="row">
               <BoxInfo>
                 <span>zipCode</span>
-                <strong>{item?.zipCode}</strong>
+                <TextArea
+                  data={addressData}
+                  dataItem={item}
+                  setData={setAddressData}
+                  dataPropName="zipCode"
+                  styles={{ fontSize: 14, color: '#333' }}
+                  upperCase
+                />
               </BoxInfo>
               <BoxInfo>
                 <span>country</span>
-                <strong>{item?.country?.toUpperCase()}</strong>
+                <TextArea
+                  data={addressData}
+                  dataItem={item}
+                  setData={setAddressData}
+                  dataPropName="country"
+                  styles={{ fontSize: 14, color: '#333' }}
+                  upperCase
+                />
               </BoxInfo>
             </section>
           </AddressComp>

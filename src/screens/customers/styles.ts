@@ -2,7 +2,7 @@
 import styled, { css } from 'styled-components';
 import { shade } from 'polished';
 import { MdSearch } from 'react-icons/md';
-import IForm from './iform';
+import IForm from './interfaces/iform';
 
 export const Title = styled.h1`
   font-size: 36px;

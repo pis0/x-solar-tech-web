@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import styled, { css } from 'styled-components';
 import { lighten } from 'polished';
-import IAddressComp from './iaddress.comp';
-import IForm from './iform';
+import IAddressComp from './interfaces/iaddress.comp';
+import IForm from './interfaces/iform';
 
 export const Form = styled.form<IForm>`
   display: flex;
@@ -44,7 +44,7 @@ export const Form = styled.form<IForm>`
     display: flex;
     height: 100%;
     border: none;
-    padding: 8px;
+    padding: 4px;
     margin-left: 2px;
     border-radius: 4px;
     color: #eee;
@@ -62,12 +62,12 @@ export const Form = styled.form<IForm>`
     }
   }
 
-  svg {
+  svg#edit {
     visibility: hidden;
     opacity: 0.2;
   }
   &:hover {
-    svg {
+    svg#edit {
       visibility: ${(props) => (props.editorMode ? 'hidden' : 'visible')};
     }
 
@@ -82,7 +82,7 @@ export const Form = styled.form<IForm>`
 `;
 
 export const AddressTitle = styled.h3`
-  margin-top: 20px;
+  margin-top: 40px;
   font-size: 24px;
   color: #aaa;
 `;
@@ -92,7 +92,7 @@ export const AddressComp = styled.address<IAddressComp>`
   ${(props) => {
     if (props.priority !== 1)
       return css`
-        opacity: 0.7;
+        opacity: 0.6;
       `;
     return null;
   }}
@@ -107,7 +107,9 @@ export const CustomerDetailsContainer = styled.div`
 
   address {
     margin-top: 10px;
+    margin-bottom: 40px;
     font-style: normal;
+    position: relative;
 
     .row {
       display: flex;
@@ -120,20 +122,43 @@ export const CustomerDetailsContainer = styled.div`
         color: #aaa;
         font-size: 14px;
       }
-
-      strong {
-        color: #333;
-        font-size: 14px;
-      }
     }
 
     .small {
       max-width: 150px;
     }
+
+    .priority {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      right: 0;
+      top: -30px;
+      &:hover {
+        cursor: pointer;
+      }
+      label {
+        display: block;
+        padding: 4px;
+        user-select: none;
+        color: #aaa;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      input {
+        display: block;
+        filter: grayscale(1);
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
   }
 `;
 
-export const BoxInfo = styled.div`
+export const BoxInfo = styled.section`
   background: #eee;
   display: flex;
   flex-direction: column;
@@ -147,13 +172,36 @@ export const BoxInfo = styled.div`
     font-size: 20px;
   }
 
-  strong {
-    color: #333;
-    font-size: 18px;
-  }
+  &#type {
+    section {
+      display: flex;
+      flex-direction: row;
 
-  a {
-    color: inherit;
-    text-decoration: none;
+      select {
+        width: 100%;
+        cursor: pointer;
+        border: none;
+        outline: none;
+        display: inline-block;
+        appearance: none;
+        background: transparent;
+
+        option {
+          background: #333;
+          color: #e1e1e1;
+        }
+      }
+
+      svg {
+        visibility: hidden;
+        opacity: 0.2;
+      }
+    }
+
+    &:hover {
+      svg {
+        visibility: visible;
+      }
+    }
   }
 `;
