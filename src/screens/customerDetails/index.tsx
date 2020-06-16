@@ -15,12 +15,99 @@ import IAddressType from './interfaces/iaddress.type';
 import TextArea from './text.area';
 import Select from './select';
 import Radio from './radio';
+import { getDiff } from '../../domain/services/utils/object.utils';
+
+let prevCustomerData = {};
+const prevAddressData: IAddress[] = [];
 
 const CustomerDetails: React.FC = () => {
   const { params } = useRouteMatch<IRouteParams>();
   const [customerData, setCustomerData] = useState<ICustomer>();
   const [addressData, setAddressData] = useState<IAddress[]>();
   const [addressType, setAddressType] = useState<IAddressType[]>();
+  const [listenToChanges, setListenToChanges] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!listenToChanges) return;
+
+    const diff = getDiff(customerData, prevCustomerData);
+    prevCustomerData = customerData ? { ...customerData } : {};
+
+    if (Object.keys(diff).length) {
+      const updateCustomerData = async (): Promise<void> => {
+        try {
+          const response = await RemoteServices.put<ICustomer>(
+            `/customer/${customerData?.id}`,
+            diff,
+          );
+          if (response.status === 200) {
+            console.log(
+              'CustomerDetails',
+              'updateCustomerData - Customer data updated!',
+            );
+            return;
+          }
+          const errorMessage = `error: inexpected status ${response.status}`;
+          console.log('CustomerDetails', errorMessage);
+        } catch (error) {
+          console.log('CustomerDetails', 'api error:', error);
+        }
+      };
+      updateCustomerData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerData, listenToChanges]);
+
+  useEffect(() => {
+    if (!listenToChanges) return;
+    if (addressData)
+      // eslint-disable-next-line no-restricted-syntax
+      for (const address of addressData) {
+        const currentPrevAddressData = prevAddressData?.find(
+          (prev: IAddress) => prev.id === address.id,
+        );
+        if (currentPrevAddressData) {
+          const diff = getDiff(address, currentPrevAddressData);
+          // eslint-disable-next-line no-unused-expressions
+          prevAddressData?.forEach((prev: IAddress, index: number) => {
+            if (prev.id === address.id) {
+              prevAddressData.splice(index, 1);
+              prevAddressData.push({ ...address });
+            }
+          });
+          if (Object.keys(diff).length) {
+            const updateAddressData = async (): Promise<void> => {
+              try {
+                const response = await RemoteServices.put<IAddress>(
+                  `/address/${address?.id}`,
+                  diff,
+                );
+                if (response.status === 200) {
+                  console.log(
+                    'CustomerDetails',
+                    'updateAddressData - Address data updated!',
+                  );
+                  // setAddressData([...addressData]);
+                  return;
+                }
+                const errorMessage = `error: inexpected status ${response.status}`;
+                console.log(
+                  'CustomerDetails',
+                  `updateAddressData: ${errorMessage}`,
+                );
+              } catch (error) {
+                console.log(
+                  'CustomerDetails',
+                  ` updateAddressData - api error:${error}`,
+                );
+              }
+            };
+            updateAddressData();
+          }
+        } else prevAddressData.push({ ...address });
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressData, listenToChanges]);
 
   const resolveCustomerDataById = async (
     id: string,
@@ -91,6 +178,8 @@ const CustomerDetails: React.FC = () => {
         customerDataResult?.id,
       );
       setAddressData(addressDataResult);
+
+      setListenToChanges(true);
     };
     init();
   }, [params]);
@@ -104,6 +193,7 @@ const CustomerDetails: React.FC = () => {
   useEffect(() => {
     return () => {
       console.log('CustomerDetails', 'destroy');
+      prevCustomerData = {};
     };
   }, []);
 
@@ -143,105 +233,111 @@ const CustomerDetails: React.FC = () => {
         </section>
 
         <AddressTitle>Addresses</AddressTitle>
-        {addressData?.map((item) => (
-          <AddressComp key={item?.id} priority={item?.priority}>
-            <Radio data={addressData} setData={setAddressData} item={item} />
-            <section className="row">
-              <BoxInfo>
-                <span>street</span>
-                <TextArea
-                  data={addressData}
-                  dataItem={item}
-                  setData={setAddressData}
-                  dataPropName="street"
-                  styles={{ fontSize: 14, color: '#333' }}
-                  upperCase
-                />
-              </BoxInfo>
-              <BoxInfo className="small">
-                <span>number</span>
-                <TextArea
-                  data={addressData}
-                  dataItem={item}
-                  setData={setAddressData}
-                  dataPropName="number"
-                  styles={{ fontSize: 14, color: '#333' }}
-                  upperCase
-                />
-              </BoxInfo>
-            </section>
-            <section className="row">
-              <BoxInfo>
-                <span>details</span>
-                <TextArea
-                  data={addressData}
-                  dataItem={item}
-                  setData={setAddressData}
-                  dataPropName="details"
-                  styles={{ fontSize: 14, color: '#333' }}
-                  upperCase
-                />
-              </BoxInfo>
-              <BoxInfo className="small" id="type">
-                <span>type</span>
-                <Select
-                  data={addressData}
-                  setData={setAddressData}
-                  types={addressType}
-                  item={item}
-                />
-              </BoxInfo>
-            </section>
-            <section className="row">
-              <BoxInfo>
-                <span>city</span>
-                <TextArea
-                  data={addressData}
-                  dataItem={item}
-                  setData={setAddressData}
-                  dataPropName="city"
-                  styles={{ fontSize: 14, color: '#333' }}
-                  upperCase
-                />
-              </BoxInfo>
-              <BoxInfo>
-                <span>state</span>
-                <TextArea
-                  data={addressData}
-                  dataItem={item}
-                  setData={setAddressData}
-                  dataPropName="state"
-                  styles={{ fontSize: 14, color: '#333' }}
-                  upperCase
-                />
-              </BoxInfo>
-            </section>
-            <section className="row">
-              <BoxInfo>
-                <span>zipCode</span>
-                <TextArea
-                  data={addressData}
-                  dataItem={item}
-                  setData={setAddressData}
-                  dataPropName="zipCode"
-                  styles={{ fontSize: 14, color: '#333' }}
-                  upperCase
-                />
-              </BoxInfo>
-              <BoxInfo>
-                <span>country</span>
-                <TextArea
-                  data={addressData}
-                  dataItem={item}
-                  setData={setAddressData}
-                  dataPropName="country"
-                  styles={{ fontSize: 14, color: '#333' }}
-                  upperCase
-                />
-              </BoxInfo>
-            </section>
-          </AddressComp>
-        ))}
+        {addressData
+          ?.sort((a: IAddress, b: IAddress) => {
+            if (a.priority < b.priority) return -1;
+            if (a.priority > b.priority) return 1;
+            return 0;
+          })
+          ?.map((item) => (
+            <AddressComp key={item?.id} priority={item?.priority}>
+              <Radio data={addressData} setData={setAddressData} item={item} />
+              <section className="row">
+                <BoxInfo>
+                  <span>street</span>
+                  <TextArea
+                    data={addressData}
+                    dataItem={item}
+                    setData={setAddressData}
+                    dataPropName="street"
+                    styles={{ fontSize: 14, color: '#333' }}
+                    upperCase
+                  />
+                </BoxInfo>
+                <BoxInfo className="small">
+                  <span>number</span>
+                  <TextArea
+                    data={addressData}
+                    dataItem={item}
+                    setData={setAddressData}
+                    dataPropName="number"
+                    styles={{ fontSize: 14, color: '#333' }}
+                    upperCase
+                  />
+                </BoxInfo>
+              </section>
+              <section className="row">
+                <BoxInfo>
+                  <span>details</span>
+                  <TextArea
+                    data={addressData}
+                    dataItem={item}
+                    setData={setAddressData}
+                    dataPropName="details"
+                    styles={{ fontSize: 14, color: '#333' }}
+                    upperCase
+                  />
+                </BoxInfo>
+                <BoxInfo className="small" id="type">
+                  <span>type</span>
+                  <Select
+                    data={addressData}
+                    setData={setAddressData}
+                    types={addressType}
+                    item={item}
+                  />
+                </BoxInfo>
+              </section>
+              <section className="row">
+                <BoxInfo>
+                  <span>city</span>
+                  <TextArea
+                    data={addressData}
+                    dataItem={item}
+                    setData={setAddressData}
+                    dataPropName="city"
+                    styles={{ fontSize: 14, color: '#333' }}
+                    upperCase
+                  />
+                </BoxInfo>
+                <BoxInfo>
+                  <span>state</span>
+                  <TextArea
+                    data={addressData}
+                    dataItem={item}
+                    setData={setAddressData}
+                    dataPropName="state"
+                    styles={{ fontSize: 14, color: '#333' }}
+                    upperCase
+                  />
+                </BoxInfo>
+              </section>
+              <section className="row">
+                <BoxInfo>
+                  <span>zipCode</span>
+                  <TextArea
+                    data={addressData}
+                    dataItem={item}
+                    setData={setAddressData}
+                    dataPropName="zipCode"
+                    styles={{ fontSize: 14, color: '#333' }}
+                    upperCase
+                  />
+                </BoxInfo>
+                <BoxInfo>
+                  <span>country</span>
+                  <TextArea
+                    data={addressData}
+                    dataItem={item}
+                    setData={setAddressData}
+                    dataPropName="country"
+                    styles={{ fontSize: 14, color: '#333' }}
+                    upperCase
+                  />
+                </BoxInfo>
+              </section>
+            </AddressComp>
+          ))}
       </CustomerDetailsContainer>
     </>
   );

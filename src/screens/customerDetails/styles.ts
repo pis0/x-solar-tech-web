@@ -116,8 +116,7 @@ export const CustomerDetailsContainer = styled.div`
       flex-direction: row;
     }
 
-    div {
-      background: #eee;
+    section {
       span {
         color: #aaa;
         font-size: 14px;
