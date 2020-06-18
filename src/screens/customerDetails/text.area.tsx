@@ -80,10 +80,15 @@ const TextArea: React.FC<ITextArea> = (props) => {
         <FaEdit size={22} id="edit" />
         {inputEditorMode && (
           <>
-            <button ref={(ref) => setFormSubmitButtonRef(ref)} type="submit">
+            <button
+              ref={(ref) => setFormSubmitButtonRef(ref)}
+              id="submit"
+              type="submit"
+            >
               <FaCheck size={20} />
             </button>
             <button
+              id="undo"
               type="button"
               onClick={() => {
                 setInputValue(resolveData(data, dataItem, dataPropName));

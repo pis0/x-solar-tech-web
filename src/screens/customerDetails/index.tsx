@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouteMatch } from 'react-router-dom';
+import { MdAdd, MdRemoveCircleOutline } from 'react-icons/md';
 import {
   CustomerDetailsContainer,
   BoxInfo,
@@ -164,6 +165,54 @@ const CustomerDetails: React.FC = () => {
     return undefined;
   };
 
+  const addAddress = useCallback(async () => {
+    console.log('CustomerDetails', 'addAddress');
+    try {
+      const response = await RemoteServices.post<IAddress>('/address', {
+        customer_id: customerData?.id,
+        priority: 2,
+      });
+      if (response.status === 200) {
+        const address = response.data;
+        console.log('CustomerDetails', `address ${address?.id} created`);
+        const addressDataResult = await resolveAddressByCustomerId(
+          customerData?.id,
+        );
+        setAddressData(addressDataResult);
+        return;
+      }
+      const errorMessage = `error: inexpected status ${response.status}`;
+      console.log('CustomerDetails', errorMessage);
+    } catch (error) {
+      console.log('CustomerDetails', 'api error:', error);
+    }
+  }, [customerData]);
+
+  const removeAddress = useCallback(
+    async (addressId) => {
+      console.log('CustomerDetails', 'removeAddress');
+      try {
+        const response = await RemoteServices.delete<IAddress>(
+          `/address/${addressId}`,
+        );
+        if (response.status === 200) {
+          const address = response.data;
+          console.log('CustomerDetails', `address ${address?.id} deleted`);
+          const addressDataResult = await resolveAddressByCustomerId(
+            customerData?.id,
+          );
+          setAddressData(addressDataResult);
+          return;
+        }
+        const errorMessage = `error: inexpected status ${response.status}`;
+        console.log('CustomerDetails', errorMessage);
+      } catch (error) {
+        console.log('CustomerDetails', 'api error:', error);
+      }
+    },
+    [customerData],
+  );
+
   useEffect(() => {
     console.log('CustomerDetails', 'params updated');
 
@@ -242,6 +291,13 @@ const CustomerDetails: React.FC = () => {
           ?.map((item) => (
             <AddressComp key={item?.id} priority={item?.priority}>
               <Radio data={addressData} setData={setAddressData} item={item} />
+              <button
+                id="removeaddress"
+                type="button"
+                onClick={() => removeAddress(item?.id)}
+              >
+                <MdRemoveCircleOutline size={26} />
+              </button>
               <section className="row">
                 <BoxInfo>
                   <span>street</span>
@@ -338,6 +394,9 @@ const CustomerDetails: React.FC = () => {
               </section>
             </AddressComp>
           ))}
+        <button id="addaddress" type="button" onClick={() => addAddress()}>
+          <MdAdd size={32} />
+        </button>
       </CustomerDetailsContainer>
     </>
   );

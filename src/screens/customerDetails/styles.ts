@@ -49,13 +49,13 @@ export const Form = styled.form<IForm>`
     border-radius: 4px;
     color: #eee;
   }
-  button[type='submit'] {
+  button#submit {
     background: #60a873;
     &:hover {
       background: ${lighten(0.1, '#60a873')};
     }
   }
-  button[type='button'] {
+  button#undo {
     background: #d17373;
     &:hover {
       background: ${lighten(0.1, '#d17373')};
@@ -131,7 +131,7 @@ export const CustomerDetailsContainer = styled.div`
       position: absolute;
       display: flex;
       align-items: center;
-      right: 0;
+      right: 45px;
       top: -30px;
       &:hover {
         cursor: pointer;
@@ -151,6 +151,46 @@ export const CustomerDetailsContainer = styled.div`
         filter: grayscale(1);
         &:hover {
           cursor: pointer;
+        }
+      }
+    }
+  }
+
+  button#addaddress,
+  button#removeaddress {
+    border-radius: 90px;
+    border: none;
+    padding: 4px 6px;
+    background: #aaa;
+    background-image: linear-gradient(
+      to top left,
+      rgba(0, 0, 0, 0.2),
+      rgba(0, 0, 0, 0.2) 30%,
+      rgba(0, 0, 0, 0)
+    );
+    svg {
+      color: #fff;
+    }
+
+    &:hover {
+      background: ${lighten(0.1, '#aaa')};
+    }
+
+    &#addaddress {
+      width: 45px;
+    }
+    &#removeaddress {
+      position: absolute;
+      right: 0;
+      top: -30px;
+      background: none;
+      padding: 0;
+      svg {
+        color: #aaa;
+      }
+      &:hover {
+        svg {
+          color: ${lighten(0.1, '#aaa')};
         }
       }
     }

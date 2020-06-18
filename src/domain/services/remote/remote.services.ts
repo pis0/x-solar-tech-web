@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1OTIzNDMyMTgsImV4cCI6MTU5MjM1MDQxOCwic3ViIjoiOWUyOThiODAtZWQ2Yi00MjhiLWIzODMtZmZlMTYyZDdhZDhjIn0.mPQu9OOBuPt7iJ7tyQvZER0Zi5ZR670_us9mODwGXPs';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1OTI0NDYzNDksImV4cCI6MTU5MjQ1MzU0OSwic3ViIjoiNTRmZDdlMDUtMDhmZC00NzY4LWI1ZDktYTc1YzIyZjA0NTcxIn0.zQB2D0bB2UPIhLGErWSTFUCmWZdaPDeHZh2HhwgzoRQ';
 const RemoteServices = axios.create({
   baseURL: 'http://localhost:3333',
   headers: {

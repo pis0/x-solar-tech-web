@@ -10,7 +10,6 @@ const Radio: React.FC<IRadio> = (props) => {
   return (
     <>
       <section className="priority">
-        <label htmlFor={item?.id}>main address</label>
         <input
           type="radio"
           id={item?.id}
@@ -26,6 +25,7 @@ const Radio: React.FC<IRadio> = (props) => {
             setData(addressDataCopy);
           }}
         />
+        <label htmlFor={item?.id}>main address</label>
       </section>
     </>
   );
