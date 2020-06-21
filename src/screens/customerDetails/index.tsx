@@ -27,6 +27,7 @@ import {
   removeAddress,
   removeCustomer,
 } from './controllers/customer.details.controller';
+import { log } from '../../domain/utils/logger.utils';
 
 let prevCustomerData = {};
 const prevAddressData: IAddress[] = [];
@@ -54,16 +55,16 @@ const CustomerDetails: React.FC = () => {
             diff,
           );
           if (response.status === 200) {
-            console.log(
+            log(
               'CustomerDetails',
               'updateCustomerData - Customer data updated!',
             );
             return;
           }
           const errorMessage = `error: inexpected status ${response.status}`;
-          console.log('CustomerDetails', errorMessage);
+          log('CustomerDetails', errorMessage);
         } catch (error) {
-          console.log('CustomerDetails', 'api error:', error);
+          log('CustomerDetails', 'api error:', error);
         }
       };
       updateCustomerData();
@@ -96,7 +97,7 @@ const CustomerDetails: React.FC = () => {
                   diff,
                 );
                 if (response.status === 200) {
-                  console.log(
+                  log(
                     'CustomerDetails',
                     'updateAddressData - Address data updated!',
                   );
@@ -104,12 +105,9 @@ const CustomerDetails: React.FC = () => {
                   return;
                 }
                 const errorMessage = `error: inexpected status ${response.status}`;
-                console.log(
-                  'CustomerDetails',
-                  `updateAddressData: ${errorMessage}`,
-                );
+                log('CustomerDetails', `updateAddressData: ${errorMessage}`);
               } catch (error) {
-                console.log(
+                log(
                   'CustomerDetails',
                   ` updateAddressData - api error:${error}`,
                 );
@@ -123,7 +121,7 @@ const CustomerDetails: React.FC = () => {
   }, [addressData, listenToChanges]);
 
   useEffect(() => {
-    console.log('CustomerDetails', 'params updated');
+    log('CustomerDetails', 'params updated');
 
     const init = async () => {
       const customerDataResult = await resolveCustomerDataById(params?.id);
@@ -144,13 +142,13 @@ const CustomerDetails: React.FC = () => {
 
   // mount
   useEffect(() => {
-    console.log('CustomerDetails', 'awake');
+    log('CustomerDetails', 'awake');
   }, []);
 
   // unmount
   useEffect(() => {
     return () => {
-      console.log('CustomerDetails', 'destroy');
+      log('CustomerDetails', 'destroy');
       prevCustomerData = {};
     };
   }, []);

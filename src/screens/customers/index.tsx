@@ -7,6 +7,7 @@ import {
   getClientsFromApi,
   inputOnChange,
 } from './controllers/customers.controller';
+import { log } from '../../domain/utils/logger.utils';
 
 const Customers: React.FC = () => {
   const [resultError, setResultError] = useState<string | undefined>(undefined);
@@ -16,13 +17,13 @@ const Customers: React.FC = () => {
   const [clients, setClients] = useState<ICustomer[]>([]);
 
   useEffect(() => {
-    console.log('Customers', 'clients was updated');
+    log('Customers', 'clients was updated');
     localStorage.setItem('xsolartechweb:inputValue', inputValue);
   }, [inputValue]);
 
   // mount
   useEffect(() => {
-    console.log('Customers', 'awake');
+    log('Customers', 'awake');
     const init = async () => {
       await getClientsFromApi(inputValue, setClients, setResultError);
     };
@@ -33,7 +34,7 @@ const Customers: React.FC = () => {
   // unmount
   useEffect(() => {
     return () => {
-      console.log('Customers', 'destroy');
+      log('Customers', 'destroy');
     };
   }, []);
 

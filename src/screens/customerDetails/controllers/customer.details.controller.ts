@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as H from 'history';
 import ICustomer from '../../../domain/interfaces/icustomer';
 import RemoteServices from '../../../domain/services/remote/remote.services';
 import IAddress from '../interfaces/iaddress';
 import IAddressType from '../interfaces/iaddress.type';
+import { log } from '../../../domain/utils/logger.utils';
 
 const resolveCustomerDataById = async (
   id: string,
@@ -14,9 +16,9 @@ const resolveCustomerDataById = async (
       return customer;
     }
     const errorMessage = `error: inexpected status ${response.status}`;
-    console.log('CustomerDetails', errorMessage);
+    log('CustomerDetails', errorMessage);
   } catch (error) {
-    console.log('CustomerDetails', 'api error:', error);
+    log('CustomerDetails', 'api error:', error);
   }
   return undefined;
 };
@@ -33,9 +35,9 @@ const resolveAddressByCustomerId = async (
       return addresses;
     }
     const errorMessage = `error: inexpected status ${response.status}`;
-    console.log('CustomerDetails', errorMessage);
+    log('CustomerDetails', errorMessage);
   } catch (error) {
-    console.log('CustomerDetails', 'api error:', error);
+    log('CustomerDetails', 'api error:', error);
   }
   return undefined;
 };
@@ -48,9 +50,9 @@ const getAddressTypes = async (): Promise<IAddressType[] | undefined> => {
       return addressTypes;
     }
     const errorMessage = `error: inexpected status ${response.status}`;
-    console.log('CustomerDetails', errorMessage);
+    log('CustomerDetails', errorMessage);
   } catch (error) {
-    console.log('CustomerDetails', 'api error:', error);
+    log('CustomerDetails', 'api error:', error);
   }
   return undefined;
 };
@@ -59,7 +61,7 @@ const addAddress = async (
   customerData: ICustomer | undefined,
   setAddressData: React.Dispatch<React.SetStateAction<IAddress[] | undefined>>,
 ) => {
-  console.log('CustomerDetails', 'addAddress');
+  log('CustomerDetails', 'addAddress');
   try {
     const response = await RemoteServices.post<IAddress>('/address', {
       customer_id: customerData?.id,
@@ -67,7 +69,7 @@ const addAddress = async (
     });
     if (response.status === 200) {
       const address = response.data;
-      console.log('CustomerDetails', `address ${address?.id} created`);
+      log('CustomerDetails', `address ${address?.id} created`);
       const addressDataResult = await resolveAddressByCustomerId(
         customerData?.id,
       );
@@ -75,9 +77,9 @@ const addAddress = async (
       return;
     }
     const errorMessage = `error: inexpected status ${response.status}`;
-    console.log('CustomerDetails', errorMessage);
+    log('CustomerDetails', errorMessage);
   } catch (error) {
-    console.log('CustomerDetails', 'api error:', error);
+    log('CustomerDetails', 'api error:', error);
   }
 };
 
@@ -86,14 +88,14 @@ const removeAddress = async (
   customerData: ICustomer | undefined,
   setAddressData: React.Dispatch<React.SetStateAction<IAddress[] | undefined>>,
 ) => {
-  console.log('CustomerDetails', 'removeAddress');
+  log('CustomerDetails', 'removeAddress');
   try {
     const response = await RemoteServices.delete<IAddress>(
       `/address/${addressId}`,
     );
     if (response.status === 200) {
       const address = response.data;
-      console.log('CustomerDetails', `address ${address?.id} deleted`);
+      log('CustomerDetails', `address ${address?.id} deleted`);
       const addressDataResult = await resolveAddressByCustomerId(
         customerData?.id,
       );
@@ -101,9 +103,9 @@ const removeAddress = async (
       return;
     }
     const errorMessage = `error: inexpected status ${response.status}`;
-    console.log('CustomerDetails', errorMessage);
+    log('CustomerDetails', errorMessage);
   } catch (error) {
-    console.log('CustomerDetails', 'api error:', error);
+    log('CustomerDetails', 'api error:', error);
   }
 };
 
@@ -111,20 +113,20 @@ const removeCustomer = async (
   customerId: string | undefined,
   history: H.History<any>,
 ) => {
-  console.log('CustomerDetails', 'removeCustomer');
+  log('CustomerDetails', 'removeCustomer');
   try {
     const response = await RemoteServices.delete<void>(
       `/customer/${customerId}`,
     );
     if (response.status === 200) {
-      console.log('CustomerDetails', `customer ${customerId} deleted`);
+      log('CustomerDetails', `customer ${customerId} deleted`);
       history.goBack();
       return;
     }
     const errorMessage = `error: inexpected status ${response.status}`;
-    console.log('CustomerDetails', errorMessage);
+    log('CustomerDetails', errorMessage);
   } catch (error) {
-    console.log('CustomerDetails', 'api error:', error);
+    log('CustomerDetails', 'api error:', error);
   }
 };
 

@@ -1,6 +1,7 @@
 import { ChangeEvent } from 'react';
 import ICustomer from '../../../domain/interfaces/icustomer';
 import RemoteServices from '../../../domain/services/remote/remote.services';
+import { log } from '../../../domain/utils/logger.utils';
 
 let inputOnChangeDelay: number;
 
@@ -18,7 +19,7 @@ const resolveClients = (
   const toMatchName = value.toLowerCase().trimStart();
   const toMatchCpf = toMatchName.replace(/[^\d]/g, '');
 
-  console.log('Customers', 'resolveClients', toMatchName, toMatchCpf);
+  log('Customers', 'resolveClients', toMatchName, toMatchCpf);
 
   const filteredCustomers = customers.filter((client) =>
     toMatchCpf?.length
@@ -47,7 +48,7 @@ const getClientsFromApi = async (
   setClients: React.Dispatch<React.SetStateAction<ICustomer[]>>,
   setResultError: React.Dispatch<React.SetStateAction<string | undefined>>,
 ) => {
-  console.log('Customers', 'getClientsFromApi');
+  log('Customers', 'getClientsFromApi');
 
   await RemoteServices.get<ICustomer[]>('/customer/').then(
     (response) => {
@@ -58,12 +59,12 @@ const getClientsFromApi = async (
         );
       } else {
         const errorMessage = `error: inexpected status ${response.status}`;
-        console.log('Customers', errorMessage);
+        log('Customers', errorMessage);
         setResultError(errorMessage);
       }
     },
     (error) => {
-      console.log('Customers', 'api error:', error);
+      log('Customers', 'api error:', error);
       setResultError(error.toString());
     },
   );
@@ -79,7 +80,7 @@ const inputOnChange = (
   setInputValue(result ?? '');
   if (inputOnChangeDelay) clearTimeout(inputOnChangeDelay);
   inputOnChangeDelay = setTimeout(async () => {
-    console.log('Customers', 'inputOnChange - result:', result);
+    log('Customers', 'inputOnChange - result:', result);
     await getClientsFromApi(result, setClients, setResultError);
   }, 300);
 };
