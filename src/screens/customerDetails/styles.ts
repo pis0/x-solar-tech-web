@@ -4,6 +4,40 @@ import { lighten } from 'polished';
 import IAddressComp from './interfaces/iaddress.comp';
 import IForm from './interfaces/iform';
 
+export const Header = styled.section`
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  section {
+    width: 100%;
+    height: 100%;
+  }
+
+  #removecustomer,
+  #backtouserlist {
+    border: none;
+    background: none;
+    svg {
+      color: #bbb;
+      height: 100%;
+    }
+    &:hover {
+      svg {
+        color: ${lighten(0.1, '#bbb')};
+      }
+    }
+
+    &#backtouserlist {
+      padding: 0 10px 0px 0px;
+    }
+
+    &#removecustomer {
+      padding: 0 0 10px 10px;
+    }
+  }
+`;
+
 export const Form = styled.form<IForm>`
   display: flex;
   flex-direction: row;

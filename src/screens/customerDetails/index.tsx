@@ -1,12 +1,14 @@
+/* eslint-disable react/jsx-curly-newline */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useEffect, useState, useCallback } from 'react';
-import { useRouteMatch } from 'react-router-dom';
-import { MdAdd, MdRemoveCircleOutline } from 'react-icons/md';
+import React, { useEffect, useState } from 'react';
+import { useRouteMatch, Link, useHistory } from 'react-router-dom';
+import { MdAdd, MdRemoveCircleOutline, MdArrowBack } from 'react-icons/md';
 import {
   CustomerDetailsContainer,
   BoxInfo,
   AddressTitle,
   AddressComp,
+  Header,
 } from './styles';
 import IRouteParams from './interfaces/irouteparams';
 import RemoteServices from '../../domain/services/remote/remote.services';
@@ -16,14 +18,24 @@ import IAddressType from './interfaces/iaddress.type';
 import TextArea from './text.area';
 import Select from './select';
 import Radio from './radio';
-import { getDiff } from '../../domain/services/utils/object.utils';
+import { getDiff } from '../../domain/utils/object.utils';
+import {
+  resolveCustomerDataById,
+  resolveAddressByCustomerId,
+  getAddressTypes,
+  addAddress,
+  removeAddress,
+  removeCustomer,
+} from './controllers/customer.details.controller';
 
 let prevCustomerData = {};
 const prevAddressData: IAddress[] = [];
 
 const CustomerDetails: React.FC = () => {
+  const history = useHistory();
+
   const { params } = useRouteMatch<IRouteParams>();
-  const [customerData, setCustomerData] = useState<ICustomer>();
+  const [customerData, setCustomerData] = useState<ICustomer | undefined>();
   const [addressData, setAddressData] = useState<IAddress[]>();
   const [addressType, setAddressType] = useState<IAddressType[]>();
   const [listenToChanges, setListenToChanges] = useState<boolean>(false);
@@ -110,109 +122,6 @@ const CustomerDetails: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addressData, listenToChanges]);
 
-  const resolveCustomerDataById = async (
-    id: string,
-  ): Promise<ICustomer | undefined> => {
-    try {
-      const response = await RemoteServices.get<ICustomer>(
-        `/customer/?id=${id}`,
-      );
-      if (response.status === 200) {
-        const customer = response.data;
-        return customer;
-      }
-      const errorMessage = `error: inexpected status ${response.status}`;
-      console.log('CustomerDetails', errorMessage);
-    } catch (error) {
-      console.log('CustomerDetails', 'api error:', error);
-    }
-    return undefined;
-  };
-
-  const resolveAddressByCustomerId = async (
-    customerId: string | undefined,
-  ): Promise<IAddress[] | undefined> => {
-    try {
-      const response = await RemoteServices.get<IAddress[]>(
-        `/address/${customerId}`,
-      );
-      if (response.status === 200) {
-        const addresses = response.data;
-        return addresses;
-      }
-      const errorMessage = `error: inexpected status ${response.status}`;
-      console.log('CustomerDetails', errorMessage);
-    } catch (error) {
-      console.log('CustomerDetails', 'api error:', error);
-    }
-    return undefined;
-  };
-
-  const getAddressTypes = async (): Promise<IAddressType[] | undefined> => {
-    try {
-      const response = await RemoteServices.get<IAddressType[]>(
-        '/address/types',
-      );
-      if (response.status === 200) {
-        const addressTypes = response.data;
-        return addressTypes;
-      }
-      const errorMessage = `error: inexpected status ${response.status}`;
-      console.log('CustomerDetails', errorMessage);
-    } catch (error) {
-      console.log('CustomerDetails', 'api error:', error);
-    }
-    return undefined;
-  };
-
-  const addAddress = useCallback(async () => {
-    console.log('CustomerDetails', 'addAddress');
-    try {
-      const response = await RemoteServices.post<IAddress>('/address', {
-        customer_id: customerData?.id,
-        priority: 2,
-      });
-      if (response.status === 200) {
-        const address = response.data;
-        console.log('CustomerDetails', `address ${address?.id} created`);
-        const addressDataResult = await resolveAddressByCustomerId(
-          customerData?.id,
-        );
-        setAddressData(addressDataResult);
-        return;
-      }
-      const errorMessage = `error: inexpected status ${response.status}`;
-      console.log('CustomerDetails', errorMessage);
-    } catch (error) {
-      console.log('CustomerDetails', 'api error:', error);
-    }
-  }, [customerData]);
-
-  const removeAddress = useCallback(
-    async (addressId) => {
-      console.log('CustomerDetails', 'removeAddress');
-      try {
-        const response = await RemoteServices.delete<IAddress>(
-          `/address/${addressId}`,
-        );
-        if (response.status === 200) {
-          const address = response.data;
-          console.log('CustomerDetails', `address ${address?.id} deleted`);
-          const addressDataResult = await resolveAddressByCustomerId(
-            customerData?.id,
-          );
-          setAddressData(addressDataResult);
-          return;
-        }
-        const errorMessage = `error: inexpected status ${response.status}`;
-        console.log('CustomerDetails', errorMessage);
-      } catch (error) {
-        console.log('CustomerDetails', 'api error:', error);
-      }
-    },
-    [customerData],
-  );
-
   useEffect(() => {
     console.log('CustomerDetails', 'params updated');
 
@@ -248,17 +157,33 @@ const CustomerDetails: React.FC = () => {
 
   return (
     <>
-      <TextArea
-        data={customerData}
-        setData={setCustomerData}
-        dataPropName="name"
-      />
-      <TextArea
-        data={customerData}
-        setData={setCustomerData}
-        dataPropName="cpf"
-        styles={{ fontSize: 24, color: '#ccc' }}
-      />
+      <Header>
+        <Link to="/customers">
+          <section id="backtouserlist">
+            <MdArrowBack size={42} />
+          </section>
+        </Link>
+        <section>
+          <TextArea
+            data={customerData}
+            setData={setCustomerData}
+            dataPropName="name"
+          />
+          <TextArea
+            data={customerData}
+            setData={setCustomerData}
+            dataPropName="cpf"
+            styles={{ fontSize: 24, color: '#ccc' }}
+          />
+        </section>
+        <button
+          id="removecustomer"
+          type="button"
+          onClick={() => removeCustomer(customerData?.id, history)}
+        >
+          <MdRemoveCircleOutline size={42} />
+        </button>
+      </Header>
       <CustomerDetailsContainer>
         <section>
           <BoxInfo>
@@ -294,7 +219,9 @@ const CustomerDetails: React.FC = () => {
               <button
                 id="removeaddress"
                 type="button"
-                onClick={() => removeAddress(item?.id)}
+                onClick={() =>
+                  removeAddress(item?.id, customerData, setAddressData)
+                }
               >
                 <MdRemoveCircleOutline size={26} />
               </button>
@@ -394,7 +321,11 @@ const CustomerDetails: React.FC = () => {
               </section>
             </AddressComp>
           ))}
-        <button id="addaddress" type="button" onClick={() => addAddress()}>
+        <button
+          id="addaddress"
+          type="button"
+          onClick={() => addAddress(customerData, setAddressData)}
+        >
           <MdAdd size={32} />
         </button>
       </CustomerDetailsContainer>

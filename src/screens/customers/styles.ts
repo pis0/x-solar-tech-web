@@ -4,14 +4,10 @@ import { shade } from 'polished';
 import { MdSearch } from 'react-icons/md';
 import IForm from './interfaces/iform';
 
-export const Title = styled.h1`
-  font-size: 36px;
-  color: #aaa;
-`;
-
 export const Form = styled.form<IForm>`
   margin-top: 40px;
   max-width: 600px;
+  min-width: 400px;
 
   display: flex;
 
@@ -84,6 +80,9 @@ export const Clients = styled.div`
 `;
 
 export const NoResults = styled.span`
-  font-size: 26px;
+  display: block;
+  font-size: 22px;
   color: #aaa;
+  text-align: center;
+  width: 100%;
 `;

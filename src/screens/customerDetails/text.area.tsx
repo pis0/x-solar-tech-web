@@ -1,44 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, ChangeEvent, useCallback } from 'react';
+import React, { useState } from 'react';
 import { FaEdit, FaCheck, FaUndoAlt } from 'react-icons/fa';
 import { Form } from './styles';
 import ITextArea from './interfaces/itext.area';
+import { inputOnChange, resolveData } from './controllers/text.area.controller';
 
 const TextArea: React.FC<ITextArea> = (props) => {
   // eslint-disable-next-line react/prop-types
   const { data, dataItem, setData, dataPropName, styles, upperCase } = props;
 
   const [inputEditorMode, setInputEditorMode] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>();
-  const [
-    formSubmitButtonRef,
-    setFormSubmitButtonRef,
-  ] = useState<HTMLButtonElement | null>();
-
-  const inputOnChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
-      const result = e?.target?.value;
-      if (escape(result)?.match(/%0A/) && formSubmitButtonRef) {
-        formSubmitButtonRef.click();
-        return;
-      }
-      setInputValue(result ?? '');
-    },
-    [formSubmitButtonRef],
-  );
-
-  const resolveData = (
-    dataObj: any | undefined,
-    dataObjItem: any,
-    dataObjPropName: string,
-  ) => {
-    const obj = dataObjItem
-      ? dataObj?.find((item: any) => item?.id === dataObjItem?.id)
-      : dataObj;
-
-    const result = obj?.[dataObjPropName]?.toString();
-    return upperCase ? result?.toUpperCase() : result;
-  };
+  const [inputValue, setInputValue] = useState<string | undefined>();
+  const [formSubmitButtonRef, setFormSubmitButtonRef] = useState<
+    HTMLButtonElement | undefined | null
+  >();
 
   return (
     <>
@@ -59,7 +34,7 @@ const TextArea: React.FC<ITextArea> = (props) => {
             setInputValue(upperCase ? result?.toUpperCase() : result);
             setData(newCustomerData);
           } else {
-            setInputValue(resolveData(data, dataItem, dataPropName));
+            setInputValue(resolveData(data, dataItem, dataPropName, upperCase));
           }
         }}
       >
@@ -70,9 +45,13 @@ const TextArea: React.FC<ITextArea> = (props) => {
           // maxLength={30}
           readOnly={!inputEditorMode}
           spellCheck={false}
-          placeholder={resolveData(data, dataItem, dataPropName)}
-          value={inputValue ?? resolveData(data, dataItem, dataPropName)}
-          onChange={inputOnChange}
+          placeholder={
+            resolveData(data, dataItem, dataPropName, upperCase) ?? 'undefined'
+          }
+          value={
+            inputValue ?? resolveData(data, dataItem, dataPropName, upperCase)
+          }
+          onChange={(e) => inputOnChange(e, formSubmitButtonRef, setInputValue)}
           onClick={() => {
             setInputEditorMode(true);
           }}
@@ -91,7 +70,9 @@ const TextArea: React.FC<ITextArea> = (props) => {
               id="undo"
               type="button"
               onClick={() => {
-                setInputValue(resolveData(data, dataItem, dataPropName));
+                setInputValue(
+                  resolveData(data, dataItem, dataPropName, upperCase),
+                );
                 setInputEditorMode(false);
               }}
             >
