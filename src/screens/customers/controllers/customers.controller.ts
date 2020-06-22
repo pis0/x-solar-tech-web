@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChangeEvent } from 'react';
+import * as H from 'history';
 import ICustomer from '../../../domain/interfaces/icustomer';
 import RemoteServices from '../../../domain/services/remote/remote.services';
 import { log } from '../../../domain/utils/logger.utils';
@@ -85,4 +87,35 @@ const inputOnChange = (
   }, 300);
 };
 
-export { getClientsFromApi, inputOnChange };
+const addCustomer = async (history: H.History<any>) => {
+  log('Customers', 'addCustomer');
+  try {
+    const response = await RemoteServices.post<ICustomer>('/customer', {});
+    if (response.status === 200) {
+      const customer = response.data;
+      log('Customers', `customer ${customer?.id} created`);
+      history.push(`/customers/details/${customer?.id}`);
+      return;
+    }
+    const errorMessage = `error: inexpected status ${response.status}`;
+    log('Customers', errorMessage);
+  } catch (error) {
+    log('Customers', 'api error:', error);
+  }
+};
+
+const customerHasPendingReg = (
+  clients: ICustomer[],
+  customerId: string,
+): boolean => {
+  const flag = clients?.length
+    ? clients?.filter(
+        (client) =>
+          client?.id === customerId &&
+          (!client?.name || !client?.cpf || !client?.email || !client?.phone),
+      )?.length > 0
+    : true;
+  return flag;
+};
+
+export { getClientsFromApi, inputOnChange, addCustomer, customerHasPendingReg };

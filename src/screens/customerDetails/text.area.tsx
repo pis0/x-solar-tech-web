@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { FaEdit, FaCheck, FaUndoAlt } from 'react-icons/fa';
@@ -6,8 +7,15 @@ import ITextArea from './interfaces/itext.area';
 import { inputOnChange, resolveData } from './controllers/text.area.controller';
 
 const TextArea: React.FC<ITextArea> = (props) => {
-  // eslint-disable-next-line react/prop-types
-  const { data, dataItem, setData, dataPropName, styles, upperCase } = props;
+  const {
+    data,
+    dataItem,
+    setData,
+    dataPropName,
+    styles,
+    upperCase,
+    placeholder,
+  } = props;
 
   const [inputEditorMode, setInputEditorMode] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string | undefined>();
@@ -46,7 +54,7 @@ const TextArea: React.FC<ITextArea> = (props) => {
           readOnly={!inputEditorMode}
           spellCheck={false}
           placeholder={
-            resolveData(data, dataItem, dataPropName, upperCase) ?? 'undefined'
+            resolveData(data, dataItem, dataPropName, upperCase) ?? placeholder
           }
           value={
             inputValue ?? resolveData(data, dataItem, dataPropName, upperCase)

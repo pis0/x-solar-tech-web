@@ -6,4 +6,5 @@ export default interface ITextArea {
   dataItem?: any;
   styles?: any;
   upperCase?: boolean;
+  placeholder?: string;
 }

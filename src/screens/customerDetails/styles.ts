@@ -278,3 +278,11 @@ export const BoxInfo = styled.section`
     }
   }
 `;
+
+export const AddressNoResults = styled.span`
+  display: block;
+  font-size: 18px;
+  color: #aaa;
+  width: 100%;
+  margin: 20px 0 20px 0;
+`;

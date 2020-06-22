@@ -1,23 +1,49 @@
 /* eslint-disable react/jsx-curly-newline */
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Form, Clients, FormIcon, NoResults } from './styles';
+import { Link, useHistory } from 'react-router-dom';
+import { MdAdd, MdWarning } from 'react-icons/md';
+import {
+  Form,
+  CustomerList,
+  CustomerItem,
+  FormIcon,
+  NoResults,
+  AddCustomerButton,
+} from './styles';
 import ICustomer from '../../domain/interfaces/icustomer';
 import {
   getClientsFromApi,
   inputOnChange,
+  addCustomer,
+  customerHasPendingReg,
 } from './controllers/customers.controller';
 import { log } from '../../domain/utils/logger.utils';
 
 const Customers: React.FC = () => {
+  const history = useHistory();
+
   const [resultError, setResultError] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState(
     localStorage.getItem('xsolartechweb:inputValue') ?? '',
   );
   const [clients, setClients] = useState<ICustomer[]>([]);
+  const [showAddCustomerButton, setShowAddCustomerButton] = useState<boolean>(
+    true,
+  );
 
   useEffect(() => {
     log('Customers', 'clients was updated');
+    const flag = clients?.length
+      ? clients?.filter(
+          (client) =>
+            !client?.name || !client?.cpf || !client?.email || !client?.phone,
+        )?.length === 0
+      : true;
+    setShowAddCustomerButton(!inputValue?.length && flag);
+  }, [clients, inputValue]);
+
+  useEffect(() => {
+    log('Customers', 'inputValue was updated');
     localStorage.setItem('xsolartechweb:inputValue', inputValue);
   }, [inputValue]);
 
@@ -51,15 +77,28 @@ const Customers: React.FC = () => {
         <FormIcon />
       </Form>
 
-      <Clients>
+      <CustomerList>
         {clients?.map((client) => (
-          <Link key={client.id} to={`/customers/details/${client.id}`}>
-            <strong>{client?.name ?? 'NAME'}</strong>
-            <span>{client?.cpf ?? '000.000.00-00'}</span>
-          </Link>
+          <CustomerItem
+            pendingReg={customerHasPendingReg(clients, client.id)}
+            key={client.id}
+          >
+            <Link to={`/customers/details/${client.id}`}>
+              <strong>{client?.name ?? 'NAME'}</strong>
+              <span>{client?.cpf ?? 'cpf'}</span>
+              <MdWarning size={20} />
+            </Link>
+          </CustomerItem>
         ))}
-      </Clients>
+      </CustomerList>
+
       {resultError !== null && <NoResults>{resultError}</NoResults>}
+
+      {showAddCustomerButton && (
+        <AddCustomerButton onClick={() => addCustomer(history)}>
+          <MdAdd size={32} />
+        </AddCustomerButton>
+      )}
     </>
   );
 };

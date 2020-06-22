@@ -2,13 +2,14 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useEffect, useState } from 'react';
 import { useRouteMatch, Link, useHistory } from 'react-router-dom';
-import { MdAdd, MdRemoveCircleOutline, MdArrowBack } from 'react-icons/md';
+import { MdAdd, MdDelete, MdArrowBack } from 'react-icons/md';
 import {
   CustomerDetailsContainer,
   BoxInfo,
   AddressTitle,
   AddressComp,
   Header,
+  AddressNoResults,
 } from './styles';
 import IRouteParams from './interfaces/irouteparams';
 import RemoteServices from '../../domain/services/remote/remote.services';
@@ -166,11 +167,13 @@ const CustomerDetails: React.FC = () => {
             data={customerData}
             setData={setCustomerData}
             dataPropName="name"
+            placeholder="Name"
           />
           <TextArea
             data={customerData}
             setData={setCustomerData}
             dataPropName="cpf"
+            placeholder="cpf"
             styles={{ fontSize: 24, color: '#ccc' }}
           />
         </section>
@@ -179,7 +182,7 @@ const CustomerDetails: React.FC = () => {
           type="button"
           onClick={() => removeCustomer(customerData?.id, history)}
         >
-          <MdRemoveCircleOutline size={42} />
+          <MdDelete size={42} />
         </button>
       </Header>
       <CustomerDetailsContainer>
@@ -221,7 +224,7 @@ const CustomerDetails: React.FC = () => {
                   removeAddress(item?.id, customerData, setAddressData)
                 }
               >
-                <MdRemoveCircleOutline size={26} />
+                <MdDelete size={26} />
               </button>
               <section className="row">
                 <BoxInfo>
@@ -319,6 +322,13 @@ const CustomerDetails: React.FC = () => {
               </section>
             </AddressComp>
           ))}
+
+        {!addressData?.length && (
+          <AddressNoResults>
+            No Addresses registered to this customer yet.
+          </AddressNoResults>
+        )}
+
         <button
           id="addaddress"
           type="button"

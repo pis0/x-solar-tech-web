@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import styled, { css } from 'styled-components';
-import { shade } from 'polished';
+import { shade, lighten } from 'polished';
 import { MdSearch } from 'react-icons/md';
 import IForm from './interfaces/iform';
+import ICustomerItem from './interfaces/iCustomerItem';
 
 export const Form = styled.form<IForm>`
   margin-top: 40px;
@@ -43,10 +44,12 @@ export const FormIcon = styled(MdSearch).attrs({
   border-radius: 0 8px 8px 0;
 `;
 
-export const Clients = styled.div`
+export const CustomerList = styled.section`
   margin-top: 60px;
   max-width: 400px;
+`;
 
+export const CustomerItem = styled.section<ICustomerItem>`
   a {
     display: flex;
     flex-direction: column;
@@ -55,16 +58,34 @@ export const Clients = styled.div`
     width: 100%;
     align-items: left;
     padding: 18px;
-
     transition: 0.1s;
+    margin-top: 4px;
+    position: relative;
+
     &:hover {
       transform: translateY(2px);
       background: ${shade(0.1, '#aaa')};
     }
 
-    & + a {
-      margin-top: 4px;
+    svg {
+      position: absolute;
+      color: #dede00;
+      right: 10px;
+      bottom: 10px;
+      display: none;
     }
+
+    ${(props) => {
+      if (props.pendingReg) {
+        return css`
+          opacity: 0.6;
+          svg {
+            display: block;
+          }
+        `;
+      }
+      return null;
+    }}
   }
 
   strong {
@@ -81,8 +102,30 @@ export const Clients = styled.div`
 
 export const NoResults = styled.span`
   display: block;
-  font-size: 22px;
+  font-size: 18px;
   color: #aaa;
-  text-align: center;
   width: 100%;
+`;
+
+export const AddCustomerButton = styled.button`
+  margin-top: 20px;
+  border-radius: 90px;
+  border: none;
+  padding: 4px 6px;
+  background: #aaa;
+  width: 45px;
+
+  background-image: linear-gradient(
+    to top left,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.2) 30%,
+    rgba(0, 0, 0, 0)
+  );
+  svg {
+    color: #fff;
+  }
+
+  &:hover {
+    background: ${lighten(0.1, '#aaa')};
+  }
 `;
